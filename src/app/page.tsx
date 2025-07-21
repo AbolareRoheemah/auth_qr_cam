@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+"use client"
+import React, { useState, useEffect } from 'react';
 import { Camera, Shield, Download, Check, X, RefreshCw } from 'lucide-react';
+import { createTOTPSession, validateCode } from '@/utils/totp'
 
 export default function DemoApp() {
   const [activeTab, setActiveTab] = useState('totp');
-  const [totpCode, setTotpCode] = useState('123456');
+  const [totpCode, setTotpCode] = useState('');
   const [isValidating, setIsValidating] = useState(false);
-  const [validationResult, setValidationResult] = useState<boolean | null>(null);
-  const [capturedPhotos, setCapturedPhotos] = useState([]);
+  const [validationResult, setValidationResult] = useState<null | boolean>(null);
+  const [capturedPhotos, setCapturedPhotos] = useState<any[]>([]);
+  const [secret, setSecret] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleValidateCode = () => {
+    if (!secret || totpCode.length !== 6) return;
+    
     setIsValidating(true);
     setTimeout(() => {
-      // For demonstration, let's assume the valid code is '123456'
-      setValidationResult(totpCode === '123456');
+      const isValid = validateCode(secret);
+      setValidationResult(isValid);
       setIsValidating(false);
-    }, 1000);
+    }, 500);
   };
 
   const handleCapturePhoto = () => {
@@ -37,13 +44,36 @@ export default function DemoApp() {
     URL.revokeObjectURL(url);
   };
 
+const generateTOTP = async () => {
+  setIsGenerating(true);
+  try {
+    const { secret: newSecret, qrCodeUrl: newQrUrl } = await createTOTPSession(
+      'Auth Security App',
+      'demo-user@example.com'
+    );
+    
+    setSecret(newSecret);
+    setQrCodeUrl(newQrUrl);
+    setValidationResult(null);
+    setTotpCode('');
+  } catch (error) {
+    console.error('Error generating TOTP:', error);
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
+useEffect(() => {
+  generateTOTP();
+}, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Security Demo App
+            Auth Demo App
           </h1>
           <p className="text-gray-600 mt-1">TOTP Authentication & Photo Capture</p>
         </div>
@@ -85,15 +115,36 @@ export default function DemoApp() {
                 </h2>
                 <div className="bg-gray-50 rounded-xl p-8 mb-6 flex items-center justify-center">
                   <div className="w-48 h-48 bg-white rounded-lg shadow-sm flex items-center justify-center border-2 border-dashed border-gray-300">
-                    <div className="text-center text-gray-500">
-                      <div className="w-32 h-32 bg-gray-200 rounded-lg mx-auto mb-3 animate-pulse"></div>
-                      <p className="text-sm">QR Code will appear here</p>
-                    </div>
+                    {qrCodeUrl ? (
+                      <img 
+                        src={qrCodeUrl} 
+                        alt="TOTP QR Code" 
+                        className="w-44 h-44 rounded-lg"
+                      />
+                    ) : (
+                      <div className="text-center text-gray-500">
+                        <div className="w-32 h-32 bg-gray-200 rounded-lg mx-auto mb-3 animate-pulse"></div>
+                        <p className="text-sm">Generating QR Code...</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center gap-2">
-                  <RefreshCw size={18} />
-                  Generate New QR
+                <button 
+                  onClick={generateTOTP}
+                  disabled={isGenerating}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      <RefreshCw size={18} className="animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw size={18} />
+                      Generate New QR
+                    </>
+                  )}
                 </button>
               </div>
 
@@ -101,6 +152,19 @@ export default function DemoApp() {
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Enter Code</h2>
                 <div className="space-y-6">
+                  {secret && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                      <p className="text-sm text-blue-800 mb-2">
+                        <strong>Secret Key:</strong>
+                      </p>
+                      <code className="text-xs font-mono bg-blue-100 px-2 py-1 rounded break-all">
+                        {secret}
+                      </code>
+                      <p className="text-xs text-blue-600 mt-2">
+                        This is shown for demo purposes only.
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">
                       6-digit code from your authenticator app
@@ -145,7 +209,7 @@ export default function DemoApp() {
                     </div>
                   )}
                 </div>
-              </div>
+                </div>
             </div>
           </div>
         )}
