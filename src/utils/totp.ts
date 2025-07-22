@@ -21,10 +21,9 @@ export async function generateQRCode(
   }
 }
 
-export function validateCode(secret: string): boolean {
+export function validateCode(secret: string, userCode: string): boolean {
   try {
-    const token = totp.generate(secret);
-    return totp.verify({ token, secret });
+    return authenticator.verify({ token: userCode, secret });
   } catch (error) {
     console.error('Error validating code:', error);
     return false;
@@ -36,6 +35,7 @@ export async function createTOTPSession(
   accountName?: string
 ): Promise<{ secret: string; qrCodeUrl: string }> {
   const secret = generateSecret();
+  console.log("secret", secret);
   const qrCodeUrl = await generateQRCode(secret, serviceName, accountName);
   
   return {

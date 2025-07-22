@@ -28,7 +28,8 @@ export default function DemoApp() {
     if (!secret || totpCode.length !== 6) return;
     setIsValidating(true);
     setTimeout(async () => {
-      const isValid = validateCode(secret);
+      console.log("secret in page", secret)
+      const isValid = validateCode(secret, totpCode);
       setValidationResult(isValid);
       if (isValid) {
         try {
@@ -85,16 +86,25 @@ export default function DemoApp() {
     }
   }, [cameraStream]);
 
+  // Changed facingMode from 'user' to 'environment' for back camera
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } 
+        video: { facingMode: { exact: 'environment' } } 
       });
       setCameraStream(stream);
       setIsCameraActive(true);
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      alert('Camera access denied or not available');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
+        setCameraStream(stream);
+        setIsCameraActive(true);
+      } catch (err2) {
+        console.error('Error accessing camera:', err2);
+        alert('Camera access denied or not available');
+      }
     }
   };
 
