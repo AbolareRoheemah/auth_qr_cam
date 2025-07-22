@@ -34,7 +34,6 @@ interface TotpAuthenticatorProps {
 }
 
 export function TotpAuthenticator({
-  secret,
   qrCodeUrl,
   isGenerating,
   totpCode,
@@ -94,7 +93,7 @@ export function TotpAuthenticator({
       <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Enter Code</h2>
         <div className="space-y-6">
-          {secret && (
+          {/* {secret && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <p className="text-sm text-blue-800 mb-2">
                 <strong>Secret Key:</strong>
@@ -106,7 +105,7 @@ export function TotpAuthenticator({
                 This is shown for demo purposes only.
               </p>
             </div>
-          )}
+          )} */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               6-digit code from your authenticator app
