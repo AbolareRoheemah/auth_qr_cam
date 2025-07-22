@@ -1,6 +1,23 @@
 import React from 'react';
 import { Shield, RefreshCw, Check, X, Download } from 'lucide-react';
 
+interface DeviceInfo {
+  platform: string;
+  cookieEnabled: boolean;
+  screen: {
+    width: number;
+    height: number;
+    colorDepth: number;
+  };
+  viewport: {
+    width: number;
+    height: number;
+  };
+  timezone: string;
+  memory?: number;
+  cores?: number;
+}
+
 interface TotpAuthenticatorProps {
   secret: string;
   qrCodeUrl: string;
@@ -11,7 +28,7 @@ interface TotpAuthenticatorProps {
   isValidating: boolean;
   validationResult: boolean | null;
   generateTOTP: () => void;
-  deviceInfo?: any;
+  deviceInfo?: DeviceInfo;
   showDeviceInfo?: boolean;
   setShowDeviceInfo: (stat: boolean) => void;
 }

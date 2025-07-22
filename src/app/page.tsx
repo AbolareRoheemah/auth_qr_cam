@@ -12,6 +12,7 @@ export default function DemoApp() {
   const [totpCode, setTotpCode] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<null | boolean>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [capturedPhotos, setCapturedPhotos] = useState<any[]>([]);
   const [secret, setSecret] = useState('');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -19,6 +20,7 @@ export default function DemoApp() {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deviceInfo, setDeviceInfo] = useState<any>(null);
   const [showDeviceInfo, setShowDeviceInfo] = useState(false);
 

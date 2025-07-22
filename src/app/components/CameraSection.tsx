@@ -35,7 +35,7 @@ export function CameraSection({
           <div className="text-center text-gray-500">
             <Camera size={48} className="mx-auto mb-3 text-gray-400" />
             <p>Camera feed will appear here</p>
-            <p className="text-sm mt-1">Click "Start Camera" to begin</p>
+            <p className="text-sm mt-1">Click &quot;Start Camera&quot; to begin</p>
           </div>
         )}
       </div>
