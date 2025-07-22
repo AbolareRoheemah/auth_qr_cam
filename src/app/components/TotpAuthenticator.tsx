@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, RefreshCw, Check, X } from 'lucide-react';
+import { Shield, RefreshCw, Check, X, Download } from 'lucide-react';
 
 interface TotpAuthenticatorProps {
   secret: string;
@@ -11,6 +11,9 @@ interface TotpAuthenticatorProps {
   isValidating: boolean;
   validationResult: boolean | null;
   generateTOTP: () => void;
+  deviceInfo?: any;
+  showDeviceInfo?: boolean;
+  setShowDeviceInfo: (stat: boolean) => void;
 }
 
 export function TotpAuthenticator({
@@ -23,6 +26,9 @@ export function TotpAuthenticator({
   isValidating,
   validationResult,
   generateTOTP,
+  deviceInfo,
+  showDeviceInfo,
+  setShowDeviceInfo
 }: TotpAuthenticatorProps) {
   return (
     <div className="grid lg:grid-cols-2 gap-8">
@@ -125,6 +131,43 @@ export function TotpAuthenticator({
               </span>
             </div>
           )}
+          {/* Device Info Display */}
+          {showDeviceInfo && deviceInfo && (
+          <div className="mt-4 bg-green-50 border border-green-200 rounded-xl p-4 animate-in fade-in-50 duration-300">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-green-800">Device Information</h3>
+              <button 
+                onClick={() => setShowDeviceInfo(false)}
+                className="text-green-600 hover:text-green-800"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="space-y-2 text-xs text-green-700">
+              <div><strong>Platform:</strong> {deviceInfo.platform}</div>
+              <div><strong>Screen:</strong> {deviceInfo.screen.width}x{deviceInfo.screen.height}</div>
+              <div><strong>Timezone:</strong> {deviceInfo.timezone}</div>
+              {deviceInfo.memory && <div><strong>Memory:</strong> {deviceInfo.memory}GB</div>}
+              {deviceInfo.cores && <div><strong>CPU Cores:</strong> {deviceInfo.cores}</div>}
+            </div>
+            <button 
+              onClick={() => {
+                const data = JSON.stringify(deviceInfo, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'device-info.json';
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="mt-3 w-full bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-center gap-1"
+            >
+              <Download size={14} />
+              Download Device Info JSON
+            </button>
+          </div>
+        )}
         </div>
       </div>
     </div>

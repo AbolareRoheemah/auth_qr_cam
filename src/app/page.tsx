@@ -5,6 +5,7 @@ import { TabNavigation } from './components/TabNavigation';
 import { TotpAuthenticator } from './components/TotpAuthenticator';
 import { CameraSection } from './components/CameraSection';
 import { PhotoGallery } from './components/PhotoGallery';
+import { getDeviceInfo } from '../utils/deviceInfo';
 
 export default function DemoApp() {
   const [activeTab, setActiveTab] = useState('totp');
@@ -18,13 +19,24 @@ export default function DemoApp() {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [deviceInfo, setDeviceInfo] = useState<any>(null);
+  const [showDeviceInfo, setShowDeviceInfo] = useState(false);
 
-  const handleValidateCode = () => {
+  const handleValidateCode = async () => {
     if (!secret || totpCode.length !== 6) return;
     setIsValidating(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       const isValid = validateCode(secret);
       setValidationResult(isValid);
+      if (isValid) {
+        try {
+          const info = await getDeviceInfo();
+          setDeviceInfo(info);
+          setShowDeviceInfo(true);
+        } catch (error) {
+          console.error('Error collecting device info:', error);
+        }
+      }
       setIsValidating(false);
     }, 500);
   };
@@ -140,6 +152,9 @@ export default function DemoApp() {
             isValidating={isValidating}
             validationResult={validationResult}
             generateTOTP={generateTOTP}
+            deviceInfo={deviceInfo}
+            showDeviceInfo={showDeviceInfo}
+            setShowDeviceInfo={setShowDeviceInfo}
           />
         )}
         {activeTab === 'camera' && (
